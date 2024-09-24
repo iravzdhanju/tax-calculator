@@ -6,7 +6,6 @@ export const TaxForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     calculateTax();
   };
 
