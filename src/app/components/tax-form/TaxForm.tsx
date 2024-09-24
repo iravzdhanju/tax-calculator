@@ -1,18 +1,22 @@
 import { useTax } from "@/app/context/FormContext";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export const TaxForm: React.FC = () => {
-  const { income, setIncome, taxYear, setTaxYear, loading, calculateTax } = useTax();
+  const { income, setIncome, taxYear, setTaxYear, isLoading, calculateTax } = useTax();
+
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsCalculating(true);
     calculateTax();
   };
 
-  const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(0, Number(e.target.value));
-    setIncome(value.toString());
-  };
+  useEffect(() => {
+    if (!isLoading && isCalculating) {
+      setIsCalculating(false);
+    }
+  }, [isLoading, isCalculating]);
 
   return (
     <form onSubmit={handleSubmit} className="mb-6 space-y-4">
@@ -24,7 +28,7 @@ export const TaxForm: React.FC = () => {
           type="number"
           id="income"
           value={income}
-          onChange={handleIncomeChange}
+          onChange={(e) => setIncome(e.target.value)}
           min="0"
           step="1.00"
           required
@@ -50,13 +54,13 @@ export const TaxForm: React.FC = () => {
       <button
         type="submit"
         className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-          loading
+          isLoading || isCalculating
             ? "bg-indigo-400 cursor-not-allowed"
             : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         }`}
-        disabled={loading}
+        disabled={isLoading || isCalculating}
       >
-        {loading ? "Calculating..." : "Calculate Tax"}
+        {isLoading || isCalculating ? "Calculating..." : "Calculate Tax"}
       </button>
     </form>
   );

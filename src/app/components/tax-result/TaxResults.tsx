@@ -2,7 +2,11 @@ import { useTax } from "@/app/context/FormContext";
 import React from "react";
 
 export const TaxResults: React.FC = () => {
-  const { result } = useTax();
+  const { result, isLoading } = useTax();
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
 
   if (!result) return null;
 
@@ -16,7 +20,7 @@ export const TaxResults: React.FC = () => {
         Marginal Tax Rate: <span className="font-semibold">{result.marginalRate}%</span>
       </p>
       <p className="text-lg">
-        Effective Tax Rate: <span className="font-semibold">{result.totalIncomeAfterTax}%</span>
+        Effective Tax Rate: <span className="font-semibold">{result.effectiveRate}%</span>
       </p>
       <p className="text-lg">
         Income After Tax: <span className="font-semibold">${result.totalIncomeAfterTax}</span>

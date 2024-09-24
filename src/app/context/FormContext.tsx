@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from "react";
 import { TaxBracket, TaxResult } from "@/app/utils/types";
 import { toast } from "react-toastify";
 import { calculateFederalTax, getMarginalRate } from "../utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface TaxContextType {
   income: string;
@@ -9,82 +10,105 @@ interface TaxContextType {
   taxYear: string;
   setTaxYear: (year: string) => void;
   result: TaxResult | null;
-  loading: boolean;
-  calculateTax: () => Promise<void>;
+  isLoading: boolean;
+  calculateTax: () => void;
 }
 
 const TaxContext = createContext<TaxContextType | undefined>(undefined);
+
+const fetchTaxBrackets = async (income: string, taxYear: string): Promise<TaxBracket[]> => {
+  const response = await fetch(`/api/calculate-tax`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ income, taxYear }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    let errorMessage = "Failed to fetch tax brackets";
+    if (data.error) {
+      if (data.error.includes("Database not found!")) {
+        errorMessage = "Unable to calculate tax. The tax database is currently unavailable. Please try again later.";
+      } else {
+        errorMessage = data.error;
+      }
+    }
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  return data.taxBrackets;
+};
 
 export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [income, setIncome] = useState<string>("");
   const [taxYear, setTaxYear] = useState<string>("2022");
   const [result, setResult] = useState<TaxResult | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
-  const calculateTax = async () => {
-    setResult(null);
-    setLoading(true);
-    const toastId = toast.loading("Calculating tax...");
-
-    try {
-      const payloadTax = await fetch(`/api/calculate-tax`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ income, taxYear }),
-      });
-
-      const data = await payloadTax.json();
-
-      if (!payloadTax.ok) {
-        let errorMessage = "Failed to fetch tax brackets";
-
-        if (data.error) {
-          try {
-            if (data.error.includes("Database not found!")) {
-              errorMessage = "Unable to calculate tax. The tax database is currently unavailable. Please try again later.";
-            } else {
-              errorMessage = data.error;
-            }
-          } catch {
-            errorMessage = data.error;
-          }
-        }
-        throw new Error(errorMessage);
-      }
-
-      const taxBrackets: TaxBracket[] = data.taxBrackets;
-
+  const calculateTaxResult = useCallback(
+    (brackets: TaxBracket[]): TaxResult => {
       const incomeNumber = Number(income);
-      const totalFedralTax = calculateFederalTax(incomeNumber, taxBrackets);
-
-      const marginalRate = getMarginalRate(incomeNumber, taxBrackets);
+      const totalFedralTax = calculateFederalTax(incomeNumber, brackets);
+      const marginalRate = getMarginalRate(incomeNumber, brackets);
       const effectiveRate = (totalFedralTax / incomeNumber) * 100;
 
-      const result: TaxResult = {
+      return {
         totalFedralTax: totalFedralTax.toFixed(2),
         effectiveRate: effectiveRate.toFixed(2),
         marginalRate: marginalRate,
-        totalIncomeAfterTax: (parseInt(income) - totalFedralTax).toFixed(2),
-        taxPerBand: taxBrackets.map((bracket) => ({
+        totalIncomeAfterTax: (incomeNumber - totalFedralTax).toFixed(2),
+        taxPerBand: brackets.map((bracket) => ({
           min: bracket.min,
           max: bracket.max,
           rate: bracket.rate,
           taxAmount: (Math.min(incomeNumber, bracket.max) - bracket.min) * bracket.rate,
         })),
       };
+    },
+    [income]
+  );
 
-      setResult(result);
-      toast.update(toastId, { render: "Tax calculation completed", type: "success", isLoading: false, autoClose: 3000 });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.update(toastId, { render: errorMessage, type: "error", isLoading: false, autoClose: 5000 });
-    } finally {
-      setLoading(false);
+  const { isLoading: isFetchingBrackets, refetch } = useQuery({
+    queryKey: ["taxBrackets", income, taxYear],
+    queryFn: () => fetchTaxBrackets(income, taxYear),
+    enabled: false,
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    onSuccess: (data: TaxBracket[]) => {
+      const calculatedResult = calculateTaxResult(data);
+      setResult(calculatedResult);
+      toast.success("Tax calculation completed");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to fetch tax brackets");
+    },
+  });
+
+  const calculateTax = useCallback(() => {
+    const cachedData = queryClient.getQueryData<TaxBracket[]>(["taxBrackets", income, taxYear]);
+    if (cachedData) {
+      const calculatedResult = calculateTaxResult(cachedData);
+      setResult(calculatedResult);
+      toast.success("Tax calculation completed (from cache)");
+    } else {
+      refetch().then((response) => {
+        if (response.data) {
+          const calculatedResult = calculateTaxResult(response.data);
+          setResult(calculatedResult);
+          toast.success("Tax calculation completed");
+        }
+      });
     }
-  };
+  }, [income, taxYear, queryClient, calculateTaxResult, refetch]);
 
+  useEffect(() => {
+    console.log("resultss", result);
+  }, [result]);
   return (
     <TaxContext.Provider
       value={{
@@ -93,7 +117,7 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         taxYear,
         setTaxYear,
         result,
-        loading,
+        isLoading: isFetchingBrackets,
         calculateTax,
       }}
     >
