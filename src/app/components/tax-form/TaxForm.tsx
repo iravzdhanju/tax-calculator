@@ -9,6 +9,11 @@ export const TaxForm: React.FC = () => {
     calculateTax();
   };
 
+  const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(0, Number(e.target.value));
+    setIncome(value.toString());
+  };
+
   return (
     <form onSubmit={handleSubmit} className="mb-6 space-y-4">
       <div>
@@ -19,7 +24,9 @@ export const TaxForm: React.FC = () => {
           type="number"
           id="income"
           value={income}
-          onChange={(e) => setIncome(e.target.value)}
+          onChange={handleIncomeChange}
+          min="0"
+          step="1.00"
           required
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         />

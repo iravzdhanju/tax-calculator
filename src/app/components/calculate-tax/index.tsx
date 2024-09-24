@@ -1,6 +1,6 @@
 "use client";
-import { TaxForm } from "./TaxForm";
-import { TaxResults } from "./TaxResult";
+import { TaxForm } from "../tax-form/TaxForm";
+import { TaxResults } from "../tax-result/TaxResults";
 
 export default function CalculateTax() {
   return (
