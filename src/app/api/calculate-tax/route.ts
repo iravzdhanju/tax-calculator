@@ -1,15 +1,9 @@
-// app/api/tax-brackets/route.ts
 import { TaxBracket } from "@/app/utils/types";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const taxYear = request.nextUrl.searchParams.get('taxYear');
-
-  if (!taxYear) {
-    return NextResponse.json({ error: "Tax year is required" }, { status: 400 });
-  }
-
+export async function POST(request: NextRequest) {
   try {
+    const { taxYear } = await request.json();
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tax-calculator/tax-year/${taxYear}`);
 
     if (!response.ok) {
@@ -24,6 +18,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ taxBrackets });
   } catch (error: unknown) {
     console.error("Error fetching tax brackets:", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "An unknown error occurred" }, { status: 500 });
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      return NextResponse.json({ error: "An unknown error occurred" }, { status: 500 });
+    }
   }
 }
