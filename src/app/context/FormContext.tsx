@@ -9,7 +9,6 @@ interface TaxContextType {
   taxYear: string;
   setTaxYear: (year: string) => void;
   result: TaxResult | null;
-  error: string | null;
   loading: boolean;
   calculateTax: () => Promise<void>;
 }
@@ -20,17 +19,15 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [income, setIncome] = useState<string>("");
   const [taxYear, setTaxYear] = useState<string>("2022");
   const [result, setResult] = useState<TaxResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const calculateTax = async () => {
-    setError(null);
     setResult(null);
     setLoading(true);
-    toast.info("Calculating tax...");
+    const toastId = toast.loading("Calculating tax...");
 
     try {
-      const response = await fetch(`/api/calculate-tax`, {
+      const payloadTax = await fetch(`/api/calculate-tax`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,11 +35,25 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         body: JSON.stringify({ income, taxYear }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch tax brackets");
+      const data = await payloadTax.json();
+
+      if (!payloadTax.ok) {
+        let errorMessage = "Failed to fetch tax brackets";
+
+        if (data.error) {
+          try {
+            if (data.error.includes("Database not found!")) {
+              errorMessage = "Unable to calculate tax. The tax database is currently unavailable. Please try again later.";
+            } else {
+              errorMessage = data.error;
+            }
+          } catch {
+            errorMessage = data.error;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       const taxBrackets: TaxBracket[] = data.taxBrackets;
 
       const incomeNumber = Number(income);
@@ -55,6 +66,7 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         totalFedralTax: totalFedralTax.toFixed(2),
         effectiveRate: effectiveRate.toFixed(2),
         marginalRate: marginalRate,
+        totalIncomeAfterTax: (parseInt(income) - totalFedralTax).toFixed(2),
         taxPerBand: taxBrackets.map((bracket) => ({
           min: bracket.min,
           max: bracket.max,
@@ -64,11 +76,10 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
 
       setResult(result);
-      toast.success("Tax calculation completed");
+      toast.update(toastId, { render: "Tax calculation completed", type: "success", isLoading: false, autoClose: 3000 });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      toast.update(toastId, { render: errorMessage, type: "error", isLoading: false, autoClose: 5000 });
     } finally {
       setLoading(false);
     }
@@ -82,7 +93,6 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         taxYear,
         setTaxYear,
         result,
-        error,
         loading,
         calculateTax,
       }}

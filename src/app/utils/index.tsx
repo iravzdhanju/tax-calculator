@@ -19,8 +19,8 @@ export const calculateFederalTax = (income: number, taxBrackets: TaxBracket[]): 
 export const getMarginalRate = (income: number, taxBrackets: TaxBracket[]): string => {
   for (const bracket of taxBrackets) {
     if (income <= bracket.max) {
-      return (bracket.rate * 100).toFixed(2) + "%";
+      return (bracket.rate * 100).toFixed(2);
     }
   }
-  return (taxBrackets[taxBrackets.length - 1].rate * 100).toFixed(2) + "%";
+  return (taxBrackets[taxBrackets.length - 1].rate * 100).toFixed(2);
 };
