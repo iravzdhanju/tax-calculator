@@ -5,8 +5,9 @@ export type TaxBracket = {
 }
 
 export type TaxResult = {
-  totalTax: string;
+  totalFedralTax: string;
   effectiveRate: string;
+  marginalRate: string;
   taxPerBand: {
     min: number;
     max: number;

@@ -1,7 +1,7 @@
-// contexts/TaxContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { TaxBracket, TaxResult } from "@/app/utils/types";
 import { toast } from "react-toastify";
+import { calculateFederalTax, getMarginalRate } from "../utils";
 
 interface TaxContextType {
   income: string;
@@ -37,43 +37,30 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         },
         body: JSON.stringify({ income, taxYear }),
       });
+
       if (!response.ok) {
         throw new Error("Failed to fetch tax brackets");
       }
+
       const data = await response.json();
       const taxBrackets: TaxBracket[] = data.taxBrackets;
 
       const incomeNumber = Number(income);
-      let totalTax = 0;
-      let remainingIncome = incomeNumber;
-      const taxPerBand = [];
+      const totalFedralTax = calculateFederalTax(incomeNumber, taxBrackets);
 
-      for (let i = 0; i < taxBrackets.length; i++) {
-        const bracket = taxBrackets[i];
-        const nextBracket = taxBrackets[i + 1];
+      const marginalRate = getMarginalRate(incomeNumber, taxBrackets);
+      const effectiveRate = (totalFedralTax / incomeNumber) * 100;
 
-        const taxableAmount = nextBracket ? Math.min(remainingIncome, nextBracket.min - bracket.min) : remainingIncome;
-
-        const taxForBracket = taxableAmount * bracket.rate;
-        totalTax += taxForBracket;
-        remainingIncome -= taxableAmount;
-
-        taxPerBand.push({
+      const result: TaxResult = {
+        totalFedralTax: totalFedralTax.toFixed(2),
+        effectiveRate: effectiveRate.toFixed(2),
+        marginalRate: marginalRate,
+        taxPerBand: taxBrackets.map((bracket) => ({
           min: bracket.min,
           max: bracket.max,
           rate: bracket.rate,
-          taxAmount: taxForBracket,
-        });
-
-        if (remainingIncome <= 0) break;
-      }
-
-      const effectiveRate = (totalTax / incomeNumber) * 100;
-
-      const result: TaxResult = {
-        totalTax: totalTax.toFixed(2),
-        effectiveRate: effectiveRate.toFixed(2),
-        taxPerBand,
+          taxAmount: (Math.min(incomeNumber, bracket.max) - bracket.min) * bracket.rate,
+        })),
       };
 
       setResult(result);

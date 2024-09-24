@@ -1,6 +1,4 @@
-// components/TaxResults.tsx
 import { useTax } from "@/app/context/FormContext";
-import { calculateFederalTax, getMarginalRate } from "@/app/utils";
 import React from "react";
 
 export const TaxResults: React.FC = () => {
@@ -9,8 +7,8 @@ export const TaxResults: React.FC = () => {
   if (!result) return null;
 
   const incomeNumber = parseFloat(income);
-  const federalTax = calculateFederalTax(incomeNumber, result.taxPerBand);
-  const marginalRate = getMarginalRate(incomeNumber, result.taxPerBand);
+  const federalTax = parseInt(result.totalFedralTax);
+  const marginalRate = result.marginalRate;
   const incomeAfterTax = incomeNumber - federalTax;
 
   return (
