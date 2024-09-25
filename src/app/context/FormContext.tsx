@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, ReactNode, useState, useCallback } from "react";
 import { TaxBracket, TaxResult } from "@/app/utils/types";
 import { toast } from "react-toastify";
 import { calculateFederalTax, getMarginalRate } from "../utils";

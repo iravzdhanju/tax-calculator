@@ -1,10 +1,8 @@
 "use client";
-
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TaxProvider } from "../context/FormContext";
 import { ToastContainer } from "react-toastify";
-import CalculateTax from "../components/calculate-tax";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
