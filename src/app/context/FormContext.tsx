@@ -94,7 +94,7 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (cachedData) {
       const calculatedResult = calculateTaxResult(cachedData);
       setResult(calculatedResult);
-      toast.success("Tax calculation completed (from cache)");
+      toast.success("Tax calculation Done");
     } else {
       refetch().then((response) => {
         if (response.data) {

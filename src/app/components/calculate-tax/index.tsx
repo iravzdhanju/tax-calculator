@@ -1,6 +1,7 @@
 "use client";
+import { Suspense, lazy } from "react";
 import { TaxForm } from "../tax-form/TaxForm";
-import { TaxResults } from "../tax-result/TaxResults";
+const TaxResult = lazy(() => import("../tax-result/TaxResults"));
 
 export default function CalculateTax() {
   return (
@@ -8,7 +9,9 @@ export default function CalculateTax() {
       <h1 className="text-2xl">Tax Calculator</h1>
       <div className="max-w-2xl w-full p-4 bg-white shadow-md rounded-lg">
         <TaxForm />
-        <TaxResults />
+        <Suspense fallback={<div>Loading tax results...</div>}>
+          <TaxResult />
+        </Suspense>
       </div>
     </div>
   );
