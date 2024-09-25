@@ -1,37 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tax Calculator
+
+This is a Next.js-based tax calculator application that allows users to calculate their federal tax based on their annual income and selected tax year.
+
+## Features
+
+- Calculate federal tax based on annual income
+- Select tax year (2019-2022)
+- View detailed tax results, including:
+  - Total federal tax
+  - Marginal tax rate
+  - Effective tax rate
+  - Income after tax
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v20 or later)
+- npm or yarn
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+        git clone https://github.com/your-username/tax-calculator.git
 
-## Learn More
+        cd tax-calculator
 
-To learn more about Next.js, take a look at the following resources:
+2.  Install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+        npm install
+        or
+        yarn install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3.  Set up environment variables:
+    Create a `.env.local` file in the root directory and add the following:
 
-## Deploy on Vercel
+            NEXT_PUBLIC_API_URL=your_api_url_here
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4.  Start the development server:
+    npm run dev
+    or
+    yarn dev
+    Copy
+5.  Open [http://localhost:3000](http://localhost:3000) in your browser to use the application.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# tax-calculator
+### Usage
+
+1. Enter your annual income in the "Annual Income" field.
+2. Select the tax year from the dropdown menu.
+3. Click the "Calculate Tax" button to view the results.
+
+## Testing
+
+Run the test suite with:
+npm test
+or
+yarn test
+Copy
+To run tests in watch mode:
+npm run test:watch
+or
+yarn test:watch
+Copy
+
+## Building for Production
+
+To create a production build:
+npm run build
+or
+yarn build
+Copy
+Then start the production server:
+npm start
+or
+yarn start
+Copy
+
+## Technologies Used
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Jest and React Testing Library for testing
+- React Toastify for notifications
+
+## Project Structure
+
+- `/src/app`: Main application code
+  - `/components`: React components
+  - `/context`: React context for state management
+  - `/utils`: Utility functions and types
+- `/public`: Static assets
+- `/tests`: Test files
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.
