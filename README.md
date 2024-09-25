@@ -89,16 +89,7 @@ Copy
 ## Project Structure
 
 - `/src/app`: Main application code
+
   - `/components`: React components
   - `/context`: React context for state management
   - `/utils`: Utility functions and types
-- `/public`: Static assets
-- `/tests`: Test files
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License.
