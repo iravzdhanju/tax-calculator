@@ -42,7 +42,6 @@ This is a Next.js-based tax calculator application that allows users to calculat
     npm run dev
     or
     yarn dev
-    Copy
 5.  Open [http://localhost:3000](http://localhost:3000) in your browser to use the application.
 
 ### Usage
@@ -57,12 +56,11 @@ Run the test suite with:
 npm test
 or
 yarn test
-Copy
+
 To run tests in watch mode:
 npm run test:watch
 or
 yarn test:watch
-Copy
 
 ## Building for Production
 
@@ -70,12 +68,11 @@ To create a production build:
 npm run build
 or
 yarn build
-Copy
+
 Then start the production server:
 npm start
 or
 yarn start
-Copy
 
 ## Technologies Used
 
@@ -89,7 +86,10 @@ Copy
 ## Project Structure
 
 - `/src/app`: Main application code
-
   - `/components`: React components
   - `/context`: React context for state management
   - `/utils`: Utility functions and types
+
+## If you have any issues feel free to contact me on my email
+
+## If you have any Queries raise a query on my website
