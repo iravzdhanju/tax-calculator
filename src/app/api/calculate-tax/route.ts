@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ taxBrackets });
   } catch (error: unknown) {
-    console.error("Error fetching tax brackets:", error);
+    console.error("Error fetching tax brackets:");
 
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
