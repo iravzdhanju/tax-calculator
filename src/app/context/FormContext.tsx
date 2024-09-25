@@ -106,9 +106,6 @@ export const TaxProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [income, taxYear, queryClient, calculateTaxResult, refetch]);
 
-  useEffect(() => {
-    console.log("resultss", result);
-  }, [result]);
   return (
     <TaxContext.Provider
       value={{

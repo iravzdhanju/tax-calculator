@@ -1,11 +1,14 @@
 "use client";
 import React from "react";
-import ApplicationContext from "./appplication-context/index";
+import Providers from "./providers/Providers";
+import CalculateTax from "./components/calculate-tax";
 
 export default function Home() {
   return (
     <React.Fragment>
-      <ApplicationContext />
+      <Providers>
+        <CalculateTax />
+      </Providers>
     </React.Fragment>
   );
 }
